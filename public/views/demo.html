@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+    <link rel="stylesheet" href="../style/styles3.css">
+    <title>Graxa - Demo Funcionalidades</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="#" class="logo-link">GRAXA</a>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link" onclick="openModal('aeroporto')">Aeroporto</a>
+                <a href="#" class="nav-link" onclick="openModal('restaurante')">Restaurante</a>
+                <a href="#" class="nav-link" onclick="openModal('mapa')">Mapa</a>
+            </nav>
+            <div class="user-dropdown">
+                <span class="user-name">Demo User</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h1 class="profile-title">Demonstração das Funcionalidades</h1>
+                    <p>Clique nos links da navegação para testar as funcionalidades de busca!</p>
+                </div>
+
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Funcionalidades Disponíveis</h2>
+                    </div>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <i class="fas fa-plane"></i>
+                            <div>
+                                <h4>Busca de Aeroportos</h4>
+                                <p>Encontre o aeroporto mais próximo do seu endereço</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-utensils"></i>
+                            <div>
+                                <h4>Busca de Restaurantes</h4>
+                                <p>Descubra os 3 melhores restaurantes próximos</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <div>
+                                <h4>Rotas no Mapa</h4>
+                                <p>Calcule rotas entre dois endereços</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Dinâmico Principal -->
+    <div id="modal-dinamico" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="modal-title">Buscar</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <!-- Formulário de busca -->
+                <form id="search-form" class="search-form">
+                    <div id="form-fields">
+                        <!-- Campos serão inseridos dinamicamente -->
+                    </div>
+                    <button type="submit" class="btn-primary" id="search-btn">Buscar</button>
+                </form>
+                
+                <!-- Área de resultados -->
+                <div id="results-container" class="results-container" style="display: none;">
+                    <h3>Resultados:</h3>
+                    <div id="results-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+    // Variável global para controlar o tipo de busca atual
+    let currentSearchType = '';
+
+    // Função para abrir o modal dinâmico
+    function openModal(type) {
+        currentSearchType = type;
+        const modal = document.getElementById('modal-dinamico');
+        const title = document.getElementById('modal-title');
+        const formFields = document.getElementById('form-fields');
+        const resultsContainer = document.getElementById('results-container');
+        
+        // Limpar resultados anteriores
+        resultsContainer.style.display = 'none';
+        document.getElementById('results-content').innerHTML = '';
+        
+        // Configurar título e campos baseado no tipo
+        switch(type) {
+            case 'aeroporto':
+                title.textContent = 'Buscar Aeroporto';
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" id="endereco" class="form-input" placeholder="Digite seu endereço" required>
+                    </div>
+                `;
+                break;
+            case 'restaurante':
+                title.textContent = 'Buscar Restaurantes';
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" id="endereco" class="form-input" placeholder="Digite seu endereço" required>
+                    </div>
+                `;
+                break;
+            case 'mapa':
+                title.textContent = 'Buscar Rota';
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="endereco-origem" class="form-label">Endereço de Origem</label>
+                        <input type="text" id="endereco-origem" class="form-input" placeholder="Digite o endereço de origem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endereco-destino" class="form-label">Endereço de Destino</label>
+                        <input type="text" id="endereco-destino" class="form-input" placeholder="Digite o endereço de destino" required>
+                    </div>
+                `;
+                break;
+        }
+        
+        // Mostrar modal
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }
+
+    // Função para fechar o modal
+    function closeModal() {
+        const modal = document.getElementById('modal-dinamico');
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        currentSearchType = '';
+    }
+
+    // Função para realizar a busca
+    async function performSearch(event) {
+        event.preventDefault();
+        
+        const searchBtn = document.getElementById('search-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsContent = document.getElementById('results-content');
+        
+        // Mostrar loading
+        searchBtn.textContent = 'Buscando...';
+        searchBtn.disabled = true;
+        
+        try {
+            let results = '';
+            
+            switch(currentSearchType) {
+                case 'aeroporto':
+                    const endereco = document.getElementById('endereco').value;
+                    results = await buscarAeroporto(endereco);
+                    break;
+                case 'restaurante':
+                    const enderecoRest = document.getElementById('endereco').value;
+                    results = await buscarRestaurantes(enderecoRest);
+                    break;
+                case 'mapa':
+                    const origem = document.getElementById('endereco-origem').value;
+                    const destino = document.getElementById('endereco-destino').value;
+                    results = await buscarRota(origem, destino);
+                    break;
+            }
+            
+            // Mostrar resultados
+            resultsContent.innerHTML = results;
+            resultsContainer.style.display = 'block';
+            
+        } catch (error) {
+            resultsContent.innerHTML = '<p class="error">Erro ao realizar a busca. Tente novamente.</p>';
+            resultsContainer.style.display = 'block';
+        } finally {
+            // Restaurar botão
+            searchBtn.textContent = 'Buscar';
+            searchBtn.disabled = false;
+        }
+    }
+
+    // Funções de busca simuladas para demo
+    async function buscarAeroporto(endereco) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return `
+            <div class="result-item">
+                <h4>Aeroporto Internacional de Guarulhos (GRU)</h4>
+                <p><strong>Sigla:</strong> GRU</p>
+                <p><strong>Distância:</strong> 25.3 km</p>
+                <p><strong>Endereço pesquisado:</strong> ${endereco}</p>
+            </div>
+        `;
+    }
+
+    async function buscarRestaurantes(endereco) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return `
+            <div class="result-item">
+                <h4>Restaurante Bella Vista</h4>
+                <p><strong>Endereço:</strong> Rua das Flores, 123 - Centro</p>
+                <p><strong>Distância:</strong> 1.2 km</p>
+            </div>
+            <div class="result-item">
+                <h4>Pizzaria do João</h4>
+                <p><strong>Endereço:</strong> Av. Principal, 456 - Jardim</p>
+                <p><strong>Distância:</strong> 2.1 km</p>
+            </div>
+            <div class="result-item">
+                <h4>Churrascaria Gaúcha</h4>
+                <p><strong>Endereço:</strong> Rua do Comércio, 789 - Vila Nova</p>
+                <p><strong>Distância:</strong> 3.5 km</p>
+            </div>
+            <p><em>Resultados para: ${endereco}</em></p>
+        `;
+    }
+
+    async function buscarRota(origem, destino) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return `
+            <div class="map-container">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt fa-3x"></i>
+                    <p>Rota de <strong>${origem}</strong> até <strong>${destino}</strong></p>
+                    <p><strong>Distância:</strong> 15.2 km</p>
+                    <p><strong>Tempo estimado:</strong> 22 minutos</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Event listener para o formulário
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', performSearch);
+        }
+    });
+</script>
+<style>
+.features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--background-light);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--accent-color);
+}
+
+.feature-item i {
+    font-size: 24px;
+    color: var(--accent-color);
+    width: 40px;
+    text-align: center;
+}
+
+.feature-item h4 {
+    margin: 0 0 8px 0;
+    color: var(--primary-color);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.feature-item p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+</style>
+

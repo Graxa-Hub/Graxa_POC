@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="../style/styles.css">
+    <link rel="stylesheet" href="../style/modal.css">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <div class="signup-container">
+
+
+                <div class="signup-visual">
+                </div>                
+                <div class="signup-form-wrapper">
+                    <h1 class="signup-title">Crie sua conta</h1>
+                    <p class="signup-subtitle">Comece sua jornada conosco</p>
+                    
+                    <form class="signup-form" id="signupForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Nome</label>
+                                <input type="text" id="name" name="name" class="form-input" placeholder="Seu nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName" class="form-label">cpf</label>
+                                <input type="text" id="cpf" name="cpf" class="form-input" placeholder="000.000.000-00" minlength="14" maxlength="14" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupEmail" class="form-label">Email</label>
+                            <input type="email" id="signupEmail" name="email" class="form-input" placeholder="seu@email.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telephone" class="form-label">Telefone</label>
+                            <input type="tel" id="signupTelefone" name="password" class="form-input" placeholder="(11) 99598-8763" required>
+                            
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupPassword" class="form-label">Senha</label>
+                            <input type="password" id="signupPassword" name="confirmPassword" class="form-input" placeholder="••••••••" required>
+                            <div class="password-strength">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirmar Senha</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" placeholder="••••••••" required>
+                            <div class="password-strength">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="userType" class="form-label">Tipo de usuário</label>
+                            <select id="userType" name="userType" class="form-select" required>
+                                <option value="">Selecione uma opção</option>
+                                <option value="produtor">Produtor</option>
+                                <option value="musico">Musico</option>
+                            </select>
+                        </div>
+                        
+                        <button type="button" class="btn-primary" id="botao-cadastro">Criar conta</button>                      
+                    </form>
+                    
+                    <div class="login-link">
+                        <p>Já tem uma conta? <a href="/login" class="link-primary">Faça login</a></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="message-container"></div>
+    
+</body>
+</html>
+<script type="module" src="../pages/usuarios.js"></script>
+<script type="module" src="../utils/stringUtils.js"></script>
+<script src="https://unpkg.com/imask"></script>
+
+<script type="module">
+    import {capitalizar} from '../utils/stringUtils.js'
+  var cpfElement = document.getElementById('cpf');
+  var telefoneElement = document.getElementById('signupTelefone');
+  var nomeElement = document.getElementById('name')
+  var cpfMask = IMask(cpfElement, {
+    mask: '000.000.000-00'
+  });
+
+  var telefoneMask = IMask(telefoneElement,{
+    mask: '(00) 00000-0000'
+  })
+
+nomeElement.addEventListener('blur', () => {
+  nomeElement.value = capitalizar(nomeElement.value);
+
+});
+
+
+</script>

@@ -1,0 +1,78 @@
+:root {
+    --primary-color: #000;
+    --secondary-color: #fff;
+    --accent-color: #4c1256;
+    --accent-green: #34a853;
+    --accent-yellow: #fbbc05;
+    --accent-orange: #FF5300;
+    --accent-purple: #4c1256;
+    --accent-purple-light: #4c1256;
+    --text-primary: #000;
+    --text-secondary: #666;
+    --text-light: #dadbdb;
+    --border-color: #e0e0e0;
+    --background-light: #f8f9fa;
+    --background-header: #404040;
+    --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --border-radius: 8px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+    padding: 18px 24px;
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-social {
+    padding: 0.7rem;
+    background: var(--accent-orange);
+    color: var(--text-light);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-social:hover {
+    color: var(--accent-orange);
+    border-color: var(--accent-orange);
+    background: var(--background-light);
+    transform: translateY(-2px);
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+}
+
+i {
+    cursor: pointer;
+}

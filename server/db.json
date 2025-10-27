@@ -1,0 +1,44 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "nome": "Macari",
+      "email": "macarimarcelino@gmail.com",
+      "telefone": "995988763",
+      "cpf": "30130130130",
+      "senha": "kakakakakakak",
+      "tipoUsuario": "produtor",
+      "statusUsuario": true
+    },
+    {
+      "id": 2,
+      "nome": "João",
+      "email": "joao@email.com",
+      "telefone": "999999999",
+      "cpf": "22222222222",
+      "senha": "123456",
+      "tipoUsuario": "musico",
+      "statusUsuario": true
+    },
+    {
+      "nome": "Gabriel Da Silva Sousa Atualizado",
+      "email": "gabriel.sousa@sptech.school",
+      "telefone": "11977977038",
+      "cpf": "47060193898",
+      "senha": "123",
+      "tipoUsuario": "produtor",
+      "statusUsuario": false,
+      "id": 3
+    },
+    {
+      "nome": "Michelle Gomes Marcelino",
+      "email": "michelle.g.marcelino@gmail.com",
+      "telefone": "11995988763",
+      "cpf": "45829677873",
+      "senha": "123",
+      "tipoUsuario": "produtor",
+      "statusUsuario": false,
+      "id": 4
+    }
+  ]
+}

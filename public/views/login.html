@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../style/styles.css">
+    <link rel="stylesheet" href="../style/modal.css">
+</head>
+<body>
+    <div class="container">        
+        <main class="main-content">
+            <div class="login-container">
+                <div class="login-form-wrapper">
+                    <h1 class="login-title">Faça seu login</h1>
+                    <p class="login-subtitle">Entre na sua conta para organizar a sua vida</p>
+                    
+                    <form class="login-form" id="loginForm">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="input_email" name="email" class="form-input" placeholder="seu@email.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" id="input_password" name="password" class="form-input" placeholder="••••••••" required>
+                        </div>
+                        
+                        <div class="form-options">
+                            <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                        </div>
+                        
+                        <button type="button" class="btn-primary" id="botao-login">Entrar</button>                    
+                    </form>
+                    
+                    <div class="signup-link">
+                        <p>Não tem uma conta? <a href="/cadastro" class="link-primary">Cadastre-se</a></p>
+                    </div>
+                </div>
+                
+                <div class="login-visual">
+                </div>
+            </div>
+        </main>
+    </div>
+        <div id="message-container"></div>
+</body>
+</html>
+
+<script type="module" src="../pages/usuarios.js"></script>
+

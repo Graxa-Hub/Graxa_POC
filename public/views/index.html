@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+    <link rel="stylesheet" href="../style/styles2.css">
+    <link rel="stylesheet" href="../style/modal.css">
+    <title>Graxa - Awwwards Style</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="#" class="logo-link">GRAXA</a>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link">Aeroporto</a>
+                <a href="#" class="nav-link">Restaurante</a>
+                <a href="#" class="nav-link">Mapa</a>
+            </nav>
+            <div class="user-dropdown" id="userDropdown">
+                <div id="btn-dropdown">
+                    <span class="user-name" id="headerName"></span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-content" id="dropdownContent">
+                    <button id="btn-logout" onclick="logout()">Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="profile-container">
+                <!-- <div class="profile-header">
+                    <h1 class="profile-title">Seja bem Vindo! <span id="nomeUsuarioTitle"></span></h1>
+                    <button id="btn-buscar-aeroporto" class="btn-primary">Aeroporto mais próximo</button>
+                </div> -->
+
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Seus Dados</h2>
+                        <div class="card-actions">
+                            <a id="btn-desativar" class="action-icon"><i class="fas fa-trash fa-lg"></i></a>
+                            <a onclick="editarUsuario()" class="action-icon"><i class="fas fa-edit fa-lg"></i></a>
+                        </div>
+                    </div>
+                    <form id="form-container-usuario" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="input_nome" class="form-label">Nome</label>
+                                <input type="text" id="input_nome" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="input_tipoUsuario" class="form-label">Tipo de Usuário</label>
+                                <input type="text" id="input_tipoUsuario" class="form-input" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_email" class="form-label">Email</label>
+                            <input type="email" id="input_email" class="form-input" disabled>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="input_cpf" class="form-label">CPF</label>
+                                <input type="text" id="input_cpf" class="form-input" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="input_telefone" class="form-label">Telefone</label>
+                                <input type="text" id="input_telefone" class="form-input" disabled>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-primary" id="btn-atualizar" style="display: none;">Atualizar</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="message-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-desativar" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Desativar Conta</h2>
+            <p>Você tem certeza que deseja desativar sua conta?</p>
+            <div class="modal-actions">
+                <button id="cancelar-desativar" class="btn-cancelar">Cancelar</button>
+                <button id="confirmar-desativar" class="btn-confirmar">Desativar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-aeroporto" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Aeroporto mais próximo</h2>
+            <div id="aeroporto-info"></div>
+            <div class="modal-actions">
+                <button id="fechar-modal-aeroporto" class="btn-cancelar">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script type="module" src="../pages/usuarios.js"></script>
+
+<script type="module">
+    import { getIdUsuarios } from "../pages/usuarios.js";
+    getIdUsuarios();
+</script>
+<script>
+    function editarUsuario() {
+        const inputs = document.querySelectorAll("#form-container-usuario input")
+        if (inputs[0].disabled == false) {
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            document.getElementById("btn-atualizar").style.display = "none"
+            return
+        }
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
+
+        document.getElementById("btn-atualizar").style.display = "block"
+    }
+</script>
+<script src="https://unpkg.com/imask"></script>
+<script type="module">
+    import { capitalizar } from "../utils/stringUtils.js";
+    var cpfElement = document.getElementById("input_cpf");
+    var telefoneElement = document.getElementById("input_telefone");
+    var nomeElement = document.getElementById("input_nome");
+    var cpfMask = IMask(cpfElement, {
+        mask: "000.000.000-00"
+    });
+
+    var telefoneMask = IMask(telefoneElement, {
+        mask: "(00) 00000-0000"
+    });
+
+    nomeElement.addEventListener("blur", () => {
+        nomeElement.value = capitalizar(nomeElement.value);
+
+    });
+</script>
+<script>
+
+    if (document.querySelector("#btn-dropdown")) {
+        document.querySelector("#btn-dropdown").addEventListener("click", abrirDropDown);
+    }
+    function abrirDropDown() {
+        const dropdown = document.querySelector(".dropdown-content");
+        const displayAtual = window.getComputedStyle(dropdown).display;
+
+        if (displayAtual === "none") {
+            dropdown.style.display = "flex";
+        } else {
+            dropdown.style.display = "none";
+        }
+    }
+
+    function logout(){
+        sessionStorage.clear()
+        window.location.href = 
+'/login';
+    }
+
+</script>
+
+<script>
+    const modal = document.getElementById("modal-desativar");
+const btnDesativar = document.getElementById("btn-desativar");
+const btnCancelar = document.getElementById("cancelar-desativar");
+const btnConfirmar = document.getElementById("confirmar-desativar");
+
+btnDesativar.addEventListener("click", () => {
+  modal.style.display = "flex";
+});
+
+btnCancelar.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+btnConfirmar.addEventListener("click", async () => {
+    
+  modal.style.display = "none";
+});
+
+</script>
+

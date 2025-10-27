@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+    <link rel="stylesheet" href="../style/styles3.css">
+
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+
+    <script src="https://unpkg.com/@mapbox/polyline"></script>
+    <script src="../utils/api-functions.js"></script>
+    <title>Graxa</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="#" class="logo-link">GRAXA</a>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link" onclick="abrirModal('aeroporto')">Aeroporto</a>
+                <a href="#" class="nav-link" onclick="abrirModal('restaurante')">Restaurante</a>
+                <a href="#" class="nav-link" onclick="abrirModal('mapa')">Mapa</a>
+            </nav>
+            <div class="user-dropdown" id="userDropdown">
+                <div id="btn-dropdown">
+                    <span class="user-name" id="headerName"></span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-content" id="dropdownContent">
+                    <button id="btn-logout" onclick="logout()">Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="main-content">
+            <div class="profile-container">
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Seus Dados</h2>
+                        <div class="card-actions">
+                            <a id="btn-desativar" class="action-icon"><i class="fas fa-trash fa-lg"></i></a>
+                            <a onclick="editarUsuario()" class="action-icon"><i class="fas fa-edit fa-lg"></i></a>
+                        </div>
+                    </div>
+                    <form id="form-container-usuario" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="input_nome" class="form-label">Nome</label>
+                                <input tipoPesquisa="text" id="input_nome" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="input_tipoUsuario" class="form-label">Tipo de Usuário</label>
+                                <input tipoPesquisa="text" id="input_tipoUsuario" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_email" class="form-label">Email</label>
+                            <input tipoPesquisa="email" id="input_email" class="form-input">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="input_cpf" class="form-label">CPF</label>
+                                <input tipoPesquisa="text" id="input_cpf" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="input_telefone" class="form-label">Telefone</label>
+                                <input tipoPesquisa="text" id="input_telefone" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button tipoPesquisa="button" class="btn-primary" id="btn-atualizar" style="display: none;">Atualizar</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="message-container"></div>
+            </div>
+        </main>
+
+        <div id="modal-dinamico" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h2 id="modal-title">Buscar</h2>
+                    <button class="modal-close" onclick="fecharModal()">&times;</button>
+                </div>
+                <div class="modal-content">
+                    
+                    <form id="search-form" class="search-form">
+                        <div id="form-fields">
+                        
+                        </div>
+                        <button tipoPesquisa="submit" class="btn-primary" id="search-btn">Buscar</button>
+                    </form>
+                    
+                    
+                    <div id="results-container" class="results-container" style="display: none;">
+                        <h3>Resultados:</h3>
+                        <div id="results-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    
+    let pesquisaAtual = '';
+
+    
+    function abrirModal(tipoPesquisa) {
+        pesquisaAtual = tipoPesquisa;
+        const modal = document.getElementById('modal-dinamico');
+        const title = document.getElementById('modal-title');
+        const formFields = document.getElementById('form-fields');
+        const resultsContainer = document.getElementById('results-container');
+        const mainContent = document.getElementById('main-content'); 
+
+       
+        if (mainContent) mainContent.style.display = "none";
+
+        
+        resultsContainer.style.display = 'none';
+        document.getElementById('results-content').innerHTML = '';
+        
+        // Configurar título e campos baseado no tipo
+        switch(tipoPesquisa) {
+            case 'aeroporto':
+                title.textContent = 'Buscar Aeroporto';
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input tipoPesquisa="text" id="endereco" class="form-input" placeholder="Digite seu endereço" required>
+                    </div>
+                `;
+                break;
+            case 'restaurante':
+                title.textContent = 'Buscar Restaurantes';
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input tipoPesquisa="text" id="endereco" class="form-input" placeholder="Digite seu endereço" required>
+                    </div>
+                `;
+                break;
+            case 'mapa':
+                title.textContent = 'Buscar Rota';
+                formFields.innerHTML = `
+                    <div class="form-group">
+                        <label for="endereco-origem" class="form-label">Endereço de Origem</label>
+                        <input tipoPesquisa="text" id="endereco-origem" class="form-input" placeholder="Digite o endereço de origem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endereco-destino" class="form-label">Endereço de Destino</label>
+                        <input tipoPesquisa="text" id="endereco-destino" class="form-input" placeholder="Digite o endereço de destino" required>
+                    </div>
+                `;
+                break;
+        }
+        
+        
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }
+
+    
+    function fecharModal() {
+        const modal = document.getElementById('modal-dinamico');
+        const mainContent = document.getElementById('main-content');
+        
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        pesquisaAtual = '';
+
+        // mostrar main-content novamente
+        if (mainContent) mainContent.style.display = "block";
+    }
+
+    // Função para realizar a busca
+    async function performSearch(event) {
+        event.preventDefault();
+        
+        const searchBtn = document.getElementById('search-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsContent = document.getElementById('results-content');
+        
+        // Mostrar loading
+        searchBtn.textContent = 'Buscando...';
+        searchBtn.disabled = true;
+        
+        try {
+            let results = '';
+            
+            switch(pesquisaAtual) {
+                case 'aeroporto':
+                    const endereco = document.getElementById('endereco').value;
+                    results = await buscarAeroporto(endereco);
+                    break;
+                case 'restaurante':
+                    const enderecoRest = document.getElementById('endereco').value;
+                    results = await buscarRestaurantes(enderecoRest);
+                    break;
+                case 'mapa':
+                    const origem = document.getElementById('endereco-origem').value;
+                    const destino = document.getElementById('endereco-destino').value;
+                    results = await buscarRota(origem, destino);
+                    break;
+            }
+            
+            
+            resultsContent.innerHTML = results;
+            resultsContainer.style.display = 'block';
+            
+        } catch (error) {
+            resultsContent.innerHTML = '<p class="error">Erro ao realizar a busca. Tente novamente.</p>';
+            resultsContainer.style.display = 'block';
+        } finally {
+            searchBtn.textContent = 'Buscar';
+            searchBtn.disabled = false;
+        }
+    }
+
+    
+    async function buscarAeroporto(endereco) {
+        return await buscarAeroportoReal(endereco);
+    }
+
+    async function buscarRestaurantes(endereco) {
+        return await buscarRestaurantesReal(endereco);
+    }
+
+    async function buscarRota(origem, destino) {
+        return await buscarRotaReal(origem, destino);
+    }
+
+   
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', performSearch);
+        }
+    });
+
+    //const modal = document.getElementById("modal-desativar");
+    const btnDesativar = document.getElementById("btn-desativar");
+    const btnCancelar = document.getElementById("cancelar-desativar");
+    const btnConfirmar = document.getElementById("confirmar-desativar");
+    const mainContent = document.getElementById("main-content");
+
+    // btnDesativar.addEventListener("click", () => {
+    // modal.style.display = "flex";
+    // if (mainContent) mainContent.style.display = "none";
+    // });
+
+    // btnCancelar.addEventListener("click", () => {
+    // modal.style.display = "none";
+    // if (mainContent) mainContent.style.display = "block";
+    // });
+
+    // btnConfirmar.addEventListener("click", async () => {
+    // modal.style.display = "none";
+    // if (mainContent) mainContent.style.display = "block";
+    // });
+</script>
+
+
