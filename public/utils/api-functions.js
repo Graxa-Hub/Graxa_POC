@@ -27,6 +27,7 @@ async function buscarLocaisPorCep(cep) {
         throw error;
     }
 }
+// Função para buscar endereço completo pelo CEP usando ViaCEP
 async function getEnderecoViaCep(cep) {
     const url = `https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`;
     try {
@@ -40,7 +41,9 @@ async function getEnderecoViaCep(cep) {
         throw error;
     }
 }
+// Funções de API para busca de aeroportos, restaurantes e mapas
 
+// Função para obter coordenadas de um endereço usando Mapbox Geocoding API
 async function getCoordinates(address, proximity = null) {
     const accessToken = 'pk.eyJ1IjoiZ2FicmllbHNvdXNhLXNwdGVjaCIsImEiOiJjbWZ5N2ZzaGwwaHp2MmpwemFtczJib3YzIn0.opNfyOXGWBuKl1R4iJiSOQ';
     let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${accessToken}&limit=1`;
@@ -189,68 +192,96 @@ async function buscarRestaurantesReal(endereco, userCoords = null) {
     }
 }
 
-// Função para buscar rota entre dois endereços
-async function buscarRotaReal(origem, destino) {
-    try {
-        // Obter coordenadas dos dois endereços
-        const coordsOrigem = await getCoordinates(origem);
-        const coordsDestino = await getCoordinates(destino);
-        
-        // Calcular distância direta
-        const distancia = calculateDistance(
-            coordsOrigem.lat, coordsOrigem.lon,
-            coordsDestino.lat, coordsDestino.lon
-        );
-        
-        // Estimar tempo (assumindo velocidade média de 40 km/h no trânsito urbano)
-        const tempoEstimado = Math.round((distancia / 40) * 60); // em minutos
-        
-        // Buscar rota usando OSRM (Open Source Routing Machine)
-        try {
-            const routeResponse = await fetch(
-                `https://router.project-osrm.org/route/v1/driving/${coordsOrigem.lon},${coordsOrigem.lat};${coordsDestino.lon},${coordsDestino.lat}?overview=false&steps=false`
-            );
-            const routeData = await routeResponse.json();
-            
-            if (routeData.routes && routeData.routes.length > 0) {
-                const route = routeData.routes[0];
-                const distanciaRota = (route.distance / 1000).toFixed(1); // converter para km
-                const tempoRota = Math.round(route.duration / 60); // converter para minutos
-                
-                return `
-                    <div class="map-container">
-                        <div class="map-placeholder">
-                            <i class="fas fa-map-marked-alt fa-3x"></i>
-                            <p>Rota de <strong>${origem}</strong> até <strong>${destino}</strong></p>
-                            <p><strong>Distância:</strong> ${distanciaRota} km</p>
-                            <p><strong>Tempo estimado:</strong> ${tempoRota} minutos</p>
-                            <p><strong>Origem:</strong> ${coordsOrigem.display_name}</p>
-                            <p><strong>Destino:</strong> ${coordsDestino.display_name}</p>
-                        </div>
-                    </div>
-                `;
-            }
-        } catch (routeError) {
-            console.log('Erro na API de rota, usando cálculo direto:', routeError);
-        }
-        
-        // Fallback com cálculo direto
-        return `
-            <div class="map-container">
-                <div class="map-placeholder">
-                    <i class="fas fa-map-marked-alt fa-3x"></i>
-                    <p>Rota de <strong>${origem}</strong> até <strong>${destino}</strong></p>
-                    <p><strong>Distância direta:</strong> ${distancia.toFixed(1)} km</p>
-                    <p><strong>Tempo estimado:</strong> ${tempoEstimado} minutos</p>
-                    <p><strong>Origem:</strong> ${coordsOrigem.display_name}</p>
-                    <p><strong>Destino:</strong> ${coordsDestino.display_name}</p>
-                </div>
-            </div>
-        `;
-        
-    } catch (error) {
-        console.error('Erro na busca de rota:', error);
-        throw new Error('Erro ao buscar rota: ' + error.message);
-    }
+function geojsonToPolyline(cordenadas) {
+    return window.polyline.encode(cordenadas.map(c => [c[1], c[0]])); // [lat, lon]
 }
 
+async function buscarRotaReal(origem, destino) {
+    const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ2FicmllbHNvdXNhLXNwdGVjaCIsImEiOiJjbWZ5N2ZzaGwwaHp2MmpwemFtczJib3YzIn0.opNfyOXGWBuKl1R4iJiSOQ';
+
+    try {
+        const coordsOrigem = await getCoordinates(origem);
+        const coordsDestino = await getCoordinates(destino);
+
+        
+        const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${coordsOrigem.lon},${coordsOrigem.lat};${coordsDestino.lon},${coordsDestino.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+        const routeResponse = await fetch(directionsUrl);
+        const routeData = await routeResponse.json();
+
+        if (!routeData.routes || routeData.routes.length === 0) {
+            throw new Error("Nenhuma rota encontrada");
+        }
+
+        const route = routeData.routes[0];
+        const distanceKm = (route.distance / 1000).toFixed(1);
+        const durationMin = Math.round(route.duration / 60);
+
+        
+        const html = `
+            <div class="map-container" style="height: 400px; border-radius: 12px; overflow: hidden;" id="map"></div>
+            <p>Rota de <strong>${origem}</strong> até <strong>${destino}</strong></p>
+            <p><strong>Distância:</strong> ${distanceKm} km</p>
+            <p><strong>Tempo estimado:</strong> ${durationMin} minutos</p>
+            <p><strong>Origem:</strong> ${coordsOrigem.display_name}</p>
+            <p><strong>Destino:</strong> ${coordsDestino.display_name}</p>
+        `;
+
+
+        //SÓ VAI INICIAR APÓS TER CERTEZA QUE O HTML FOI INSERIDO NA PÁGINA
+        setTimeout(() => {
+            mapboxgl.accessToken = MAPBOX_TOKEN;
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/navigation-day-v1',
+                center: [(coordsOrigem.lon + coordsDestino.lon) / 2, (coordsOrigem.lat + coordsDestino.lat) / 2],
+                zoom: 12
+            });
+
+            map.on('load', () => {
+                // LINHA DE ROTA
+                map.addSource('route', {
+                    type: 'geojson',
+                    data: {
+                        type: 'Feature',
+                        properties: {},
+                        geometry: route.geometry
+                    }
+                });
+
+                map.addLayer({
+                    id: 'route',
+                    type: 'line',
+                    source: 'route',
+                    layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    paint: {
+                        'line-color': '#ff5500',
+                        'line-width': 5
+                    }
+                });
+
+                
+                new mapboxgl.Marker({ color: 'green' })
+                    .setLngLat([coordsOrigem.lon, coordsOrigem.lat])
+                    .addTo(map);
+
+                new mapboxgl.Marker({ color: 'red' })
+                    .setLngLat([coordsDestino.lon, coordsDestino.lat])
+                    .addTo(map);
+
+                //PARTE DO ZOOM, NÃO MEXER EM NADA
+                const bounds = new mapboxgl.LngLatBounds();
+                route.geometry.coordinates.forEach(coord => bounds.extend(coord));
+                map.fitBounds(bounds, { padding: 50 });
+            });
+        }, 200);
+
+        return html;
+
+    } catch (error) {
+        console.error('Erro na busca de rota:', error);
+        return `<p class="error">Erro ao buscar rota: ${error.message}</p>`;
+    }
+}
