@@ -265,6 +265,115 @@
     // modal.style.display = "none";
     // if (mainContent) mainContent.style.display = "block";
     // });
+
+    let ultimoDadosCepBuscado = null;
+
+// Atualizar a função buscarRestaurantes para usar CEP e guardar dados
+async function buscarRestaurantes(endereco) {
+    try {
+        // Verificar se é um CEP
+        const cepLimpo = endereco.replace(/\D/g, '');
+        
+        let dadosCep;
+        if (cepLimpo.length === 8) {
+            // É um CEP - buscar dados estruturados
+            dadosCep = await getEnderecoViaCep(cepLimpo);
+        } else {
+            // É um endereço normal - converter para objeto
+            dadosCep = {
+                cep: '',
+                logradouro: endereco,
+                bairro: '',
+                localidade: endereco,
+                uf: '',
+                enderecoCompleto: endereco,
+                enderecoParaBusca: endereco
+            };
+        }
+        
+        // GUARDAR para usar quando clicar no restaurante
+        ultimoDadosCepBuscado = dadosCep;
+        
+        return await buscarRestaurantesReal(dadosCep);
+    } catch (error) {
+        console.error('Erro ao buscar restaurantes:', error);
+        throw error;
+    }
+}
+
+// Atualizar a função buscarAeroporto para usar CEP
+async function buscarAeroporto(endereco) {
+    try {
+        // Verificar se é um CEP
+        const cepLimpo = endereco.replace(/\D/g, '');
+        
+        let dadosCep;
+        if (cepLimpo.length === 8) {
+            // É um CEP - buscar dados estruturados
+            dadosCep = await getEnderecoViaCep(cepLimpo);
+        } else {
+            // É um endereço normal - converter para objeto
+            dadosCep = {
+                cep: '',
+                logradouro: endereco,
+                bairro: '',
+                localidade: endereco,
+                uf: '',
+                enderecoCompleto: endereco,
+                enderecoParaBusca: endereco
+            };
+        }
+        
+        return await buscarAeroportoReal(dadosCep);
+    } catch (error) {
+        console.error('Erro ao buscar aeroporto:', error);
+        throw error;
+    }
+}
+
+// Atualizar a função buscarRota para aceitar CEPs também
+async function buscarRota(origem, destino) {
+    try {
+        let dadosOrigem, dadosDestino;
+        
+        // Processar origem
+        const cepOrigemLimpo = origem.replace(/\D/g, '');
+        if (cepOrigemLimpo.length === 8) {
+            dadosOrigem = await getEnderecoViaCep(cepOrigemLimpo);
+        } else {
+            dadosOrigem = {
+                cep: '',
+                logradouro: origem,
+                bairro: '',
+                localidade: origem,
+                uf: '',
+                enderecoCompleto: origem,
+                enderecoParaBusca: origem
+            };
+        }
+        
+        // Processar destino
+        const cepDestinoLimpo = destino.replace(/\D/g, '');
+        if (cepDestinoLimpo.length === 8) {
+            dadosDestino = await getEnderecoViaCep(cepDestinoLimpo);
+        } else {
+            dadosDestino = {
+                cep: '',
+                logradouro: destino,
+                bairro: '',
+                localidade: destino,
+                uf: '',
+                enderecoCompleto: destino,
+                enderecoParaBusca: destino
+            };
+        }
+        
+        return await buscarRotaReal(dadosOrigem, dadosDestino);
+    } catch (error) {
+        console.error('Erro ao buscar rota:', error);
+        throw error;
+    }
+}
 </script>
 
 

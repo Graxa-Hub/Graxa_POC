@@ -1007,17 +1007,25 @@ body {
     cursor: not-allowed;
     pointer-events: none;
 }
-.modal-overlay{
-    display: flex;
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: none;
     justify-content: center;
     align-items: center;
-    display: none;
+    z-index: 10000 !important; /* Maior que o header */
     opacity: 0;
-    transition: opacity 0.3s ease-in-out
+    transition: opacity 0.3s ease-in-out;
 }
 
 .modal-overlay.active {
-    opacity: 1;
+    display: flex !important;
+    opacity: 1 !important;
 }
 
 .modal-overlay.active .modal-box {
@@ -1025,11 +1033,28 @@ body {
     opacity: 1;
 }
 
+/* Garantir que o header fique abaixo do modal */
+.header {
+    z-index: 100; /* Muito menor que o modal */
+}
+
+
 .modal-box {
+    background: var(--secondary-color);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     transform: scale(0.9);
     opacity: 0;
     transition: all 0.3s ease-in-out;
+    position: relative;
+    z-index: 10001; /* Ainda maior */
 }
+
 
 /* Responsividade para o modal */
 @media (max-width: 768px) {
